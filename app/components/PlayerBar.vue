@@ -1,5 +1,5 @@
-<script setup>
-import Track from './Track.vue'
+<script>
+
 </script>
 
 <template>
@@ -37,6 +37,7 @@ import Track from './Track.vue'
           </div>
 
           <Track />
+
         </div>
         <div class="bar__volume-block volume">
           <div class="volume__content">
@@ -243,5 +244,4 @@ import Track from './Track.vue'
 .volume__progress-line {
   width: 109px;
 }
-
 </style>

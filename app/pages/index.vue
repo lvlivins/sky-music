@@ -1,10 +1,3 @@
-<script setup>
-import Navbar from '../components/Navbar.vue'
-import FilterControls from '../components/FilterControls.vue'
-import Playlist from '../components/Playlist.vue'
-import PlayerBar from '../components/PlayerBar.vue'
-</script>
-
 <template>
   <div class="wrapper">
     <div class="container">
