@@ -1,5 +1,9 @@
-<script>
+<script setup>
+const activeFilter = ref(null)
 
+const toggleFilter = (filter) => {
+  activeFilter.value = activeFilter.value === filter ? null : filter
+}
 </script>
 
 <template>
@@ -7,12 +11,12 @@
     <div class="nav__logo logo">
       <img class="logo__image" src="/img/logo.png" alt="logo" />
     </div>
-    <div class="nav__burger burger">
+    <div class="nav__burger burger" @click="toggleFilter('burger')">
       <span class="burger__line"></span>
       <span class="burger__line"></span>
       <span class="burger__line"></span>
     </div>
-    <div class="nav__menu menu">
+    <div class="nav__menu menu" v-show="activeFilter === 'burger'">
       <ul class="menu__list">
         <li class="menu__item">
           <a href="#" class="menu__link">Главное</a>
@@ -41,6 +45,7 @@
   padding: 13px 0 13px 0;
   background-color: transparent;
   margin-bottom: 20px;
+  cursor: pointer;
 }
 
 .nav__burger {
@@ -57,6 +62,7 @@
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .nav__menu {
