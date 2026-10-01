@@ -1,11 +1,47 @@
-<script>
+<script setup>
+import { usePlayerStore } from "~/stores/player";
 
+const playerStore = usePlayerStore();
+const audioRef = ref(null);
+
+// функции из composable
+const {
+  handleTimeUpdate,
+  handleTrackEnd,
+  seekTo,
+  updateVolume,
+  initPlayer,
+} = useAudioPlayer();
+
+onMounted(() => {
+  initPlayer(audioRef.value);
+});
+
+const handlePlay = () => {
+  playerStore.togglePlay();
+};
+
+// Клик по прогресс-бару, чтобы перемотать трек
+const handleProgressClick = (event) => {
+  if (!playerStore.currentTrack) return;
+
+  const progressBar = event.currentTarget;
+  // где конкретно кликнули
+  const clickPosition = event.offsetX;
+  // общая ширина бара
+  const progressBarWidth = progressBar.offsetWidth;
+  // процент клика от ширины: середина - 50%
+  const percentage = (clickPosition / progressBarWidth) * 100;
+  seekTo(percentage);
+};
 </script>
 
 <template>
-  <div class="bar">
+  <div v-show="playerStore.currentTrack" class="bar">
     <div class="bar__content">
-      <div class="bar__player-progress"></div>
+      <div class="bar__player-progress" @click="handleProgressClick">
+        <div class="bar__player-progress-line"></div>
+      </div>
       <div class="bar__player-block">
         <div class="bar__player player">
           <div class="player__controls">
@@ -14,9 +50,15 @@
                 <use xlink:href="/img/icon/sprite.svg#icon-prev"></use>
               </svg>
             </div>
-            <div class="player__btn-play _btn">
+            <div class="player__btn-play _btn" @click="handlePlay">
               <svg class="player__btn-play-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-play"></use>
+                <use
+                  :xlink:href="
+                    playerStore.isPlaying
+                      ? '/img/icon/sprite.svg#icon-pause'
+                      : '/img/icon/sprite.svg#icon-play'
+                  "
+                ></use>
               </svg>
             </div>
             <div class="player__btn-next">
@@ -48,15 +90,24 @@
             </div>
             <div class="volume__progress _btn">
               <input
+                v-model="playerStore.volume"
                 class="volume__progress-line _btn"
                 type="range"
                 name="range"
+                min="0"
+                max="100"
+                @input="updateVolume"
               />
             </div>
           </div>
         </div>
       </div>
     </div>
+    <audio
+      ref="audioRef"
+      @timeupdate="handleTimeUpdate"
+      @ended="handleTrackEnd"
+    />
   </div>
 </template>
 
@@ -85,6 +136,11 @@
   background: #2e2e2e;
 }
 
+.bar__player-progress-line {
+  width: v-bind("playerStore.progress + '%'");
+  height: 100%;
+  background: #ffffff;
+}
 .bar__player-block {
   height: 73px;
   display: -webkit-box;

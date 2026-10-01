@@ -1,5 +1,7 @@
-<script>
+<script setup>
+import { usePlayerStore } from "~/stores/player";
 
+const playerStore = usePlayerStore();
 </script>
 
 <template>
@@ -11,12 +13,12 @@
         </svg>
       </div>
       <div class="track-play__author">
-        <a class="track-play__author-link" href="http://"
-          >Ты та...</a
-        >
+        <a class="track-play__author-link" href="#">{{
+          playerStore.currentTrack?.author || "Выберите трек"
+        }}</a>
       </div>
       <div class="track-play__album">
-        <a class="track-play__album-link" href="http://">Баста</a>
+        <a class="track-play__album-link" href="#">{{playerStore.currentTrack?.album || "" }}</a>
       </div>
     </div>
     <div class="track-play__like-dis">

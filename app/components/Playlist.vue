@@ -1,5 +1,7 @@
 <script setup>
 const { loading, error, tracks, formatDuration } = await useTracks("tracks-playlist");
+
+const { playTrack } = useAudioPlayer();
 </script>
 
 <template>
@@ -30,7 +32,7 @@ const { loading, error, tracks, formatDuration } = await useTracks("tracks-playl
               </svg>
             </div>
             <div class="track__title-text">
-              <a class="track__title-link" href="#">{{ track.name }}</a>
+              <a class="track__title-link" href="#" @click="playTrack(track)">{{ track.name }}</a>
             </div>
           </div>
           <div class="track__author">
@@ -192,13 +194,13 @@ const { loading, error, tracks, formatDuration } = await useTracks("tracks-playl
   color: #ffffff;
 }
 
-.track__title-span {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: #4e4e4e;
-}
+//.track__title-span {
+//  font-style: normal;
+//  font-weight: 400;
+//  font-size: 16px;
+//  line-height: 24px;
+//  color: #4e4e4e;
+//}
 
 .track__author {
   width: 321px;
