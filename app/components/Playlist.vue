@@ -194,14 +194,6 @@ const { playTrack } = useAudioPlayer();
   color: #ffffff;
 }
 
-//.track__title-span {
-//  font-style: normal;
-//  font-weight: 400;
-//  font-size: 16px;
-//  line-height: 24px;
-//  color: #4e4e4e;
-//}
-
 .track__author {
   width: 321px;
   display: -webkit-box;
