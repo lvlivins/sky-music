@@ -1,3 +1,120 @@
+<template>
+  <div class="wrapper">
+    <div class="container-enter">
+      <div class="modal__block">
+        <form class="modal__form-login" @submit.prevent="handleSubmit">
+          <div class="modal__logo">
+            <img src="/img/logo_modal.png" alt="logo" />
+          </div>
+
+          <input
+            v-model="email"
+            class="modal__input login"
+            :class="{ 'input-error': emailError }"
+            type="text"
+            name="login"
+            :placeholder="emailError || 'Почта'"
+            @focus="emailError = ''"
+          />
+
+          <input
+            v-model="password"
+            class="modal__input password-first"
+            :class="{ 'input-error': passwordError }"
+            type="password"
+            name="password"
+            :placeholder="passwordError || 'Пароль'"
+            @focus="passwordError = ''"
+          />
+
+          <input
+            v-if="isRegistration"
+            v-model="confirmPassword"
+            class="modal__input password-double"
+            type="password"
+            name="password"
+            placeholder="Повторите пароль"
+          />
+
+          <button type="submit" class="modal__btn-enter">
+            <a>{{ isRegistration ? "Зарегистрироваться" : "Войти" }}</a>
+          </button>
+
+          <NuxtLink
+            :to="isRegistration ? '/signin' : '/signup'"
+            class="modal__btn-signup"
+          >
+            {{ isRegistration ? "Войти" : "Зарегистрироваться" }}
+          </NuxtLink>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+const props = defineProps({
+  isRegistration: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["submit"]);
+
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+
+const emailError = ref("");
+const passwordError = ref("");
+
+const handleSubmit = async () => {
+  emailError.value = "";
+  passwordError.value = "";
+
+  if (!email.value.trim()) {
+    emailError.value = "Введите логин";
+  } else if (!email.value.includes("@")) {
+    email.value = "";
+    emailError.value = "Логин введён неверно";
+  }
+
+  if (!password.value.trim()) {
+    passwordError.value = "Введите пароль";
+  }
+
+  if (emailError.value || passwordError.value) {
+    return;
+  }
+
+  if (props.isRegistration && password.value !== confirmPassword.value) {
+    alert("Пароли не совпадают");
+    return;
+  }
+
+  emit("submit", { email: email.value, password: password.value });
+};
+</script>
+
+<style scoped>
+.modal__input {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.05px;
+  outline: none;
+}
+
+.input-error::placeholder {
+  color: #ff4d4f;
+}
+
+.input-error {
+  border-bottom-color: #ff4d4f;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -30,9 +147,9 @@ ul li {
 @font-face {
   font-family: "StratosSkyeng";
   src: local("StratosSkyeng"), local("StratosSkyeng"),
-    url("../fonts/StratosSkyeng.woff2") format("woff2"),
-    url("../fonts/StratosSkyeng.woff") format("woff"),
-    url("../fonts/StratosSkyeng.ttf") format("truetype");
+  url("../fonts/StratosSkyeng.woff2") format("woff2"),
+  url("../fonts/StratosSkyeng.woff") format("woff"),
+  url("../fonts/StratosSkyeng.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
@@ -246,3 +363,5 @@ body {
 .login {
   margin-bottom: 30px;
 }
+
+</style>

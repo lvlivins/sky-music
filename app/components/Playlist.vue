@@ -1,7 +1,43 @@
 <script setup>
-const { loading, error, tracks, formatDuration } = await useTracks("tracks-playlist");
+import { useFiltersStore } from "~/stores/filters";
 
+const { loading, error, tracks, formatDuration } = await useTracks("tracks-playlist");
 const { playTrack } = useAudioPlayer();
+
+const filtersStore = useFiltersStore();
+
+const props = defineProps({
+  trackIds: { type: Array, default: null },
+  withFilters: { type: Boolean, default: false },// клик фильтруем !!
+});
+
+const shownTracks = computed(() => {
+  let list = tracks.value;
+
+  if (props.trackIds) {
+    list = list.filter((track) => props.trackIds.includes(track._id));
+  }
+
+  if (props.withFilters) {
+    if (filtersStore.selectedAuthors.length) {
+      list = list.filter((track) => filtersStore.selectedAuthors.includes(track.author));
+    }
+    if (filtersStore.selectedGenres.length) {
+      list = list.filter((track) => {
+        const genres = Array.isArray(track.genre) ? track.genre : [track.genre];
+        return genres.some((g) => g && filtersStore.selectedGenres.includes(g.toLowerCase().trim()));
+      });
+    }
+    if (filtersStore.selectedYear) {
+      list = list.filter((track) => {
+        const year = track.release_date?.split("-")[0] || "Неизвестно";
+        return year === filtersStore.selectedYear;
+      });
+    }
+  }
+
+  return list;
+});
 </script>
 
 <template>
@@ -23,7 +59,7 @@ const { playTrack } = useAudioPlayer();
       <div class="error">Ошибка загрузки: {{ error.message }}</div>
     </div>
     <div v-else class="content__playlist playlist">
-      <div class="playlist__item" v-for="track in tracks" :key="track._id">
+      <div class="playlist__item" v-for="track in shownTracks" :key="track._id">
         <div class="playlist__track track">
           <div class="track__title">
             <div class="track__title-image">

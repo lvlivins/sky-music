@@ -19,13 +19,13 @@ const toggleFilter = (filter) => {
     <div class="nav__menu menu" v-show="activeFilter === 'burger'">
       <ul class="menu__list">
         <li class="menu__item">
-          <a href="#" class="menu__link">Главное</a>
+          <NuxtLink to="/" class="menu__link">Главное</NuxtLink>
         </li>
         <li class="menu__item">
-          <a href="#" class="menu__link">Мой плейлист</a>
+          <NuxtLink to="/favorites" class="menu__link">Мой плейлист</NuxtLink>
         </li>
         <li class="menu__item">
-          <a href="/signin.html" class="menu__link">Войти</a>
+          <NuxtLink to="/signin" class="menu__link">Войти</NuxtLink>
         </li>
       </ul>
     </div>

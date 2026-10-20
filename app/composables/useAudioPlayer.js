@@ -1,3 +1,4 @@
+import { watchEffect } from "vue";
 import { usePlayerStore } from "~/stores/player";
 
 export function useAudioPlayer() {
@@ -22,6 +23,7 @@ export function useAudioPlayer() {
 
     try {
       playerStore.setCurrentTrack(track);
+      playerStore.setProgress(0); // таймлайн на 0
       playerStore.audioRef.src = track.track_file;
       await playerStore.audioRef.play();
       playerStore.setPlaying(true);
@@ -36,7 +38,6 @@ export function useAudioPlayer() {
     if (!playerStore.audioRef) return;
     const currentTime = playerStore.audioRef.currentTime;
     const duration = playerStore.audioRef.duration;
-    console.log(duration);
     if (duration) {
       const progress = (currentTime / duration) * 100;
       playerStore.setProgress(progress);
@@ -60,6 +61,13 @@ export function useAudioPlayer() {
     if (!playerStore.audioRef) return;
     playerStore.audioRef.volume = playerStore.volume / 100;
   };
+
+  // Закончился ли трек?
+  watchEffect(() => {
+    if (playerStore.progress >= 100 && playerStore.isPlaying) {
+      playerStore.setPlaying(false);
+    }
+  });
 
   return {
     initPlayer,
