@@ -41,17 +41,41 @@ useHead(() => ({
             <div class="sidebar__list">
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/category/2">
-                  <img class="sidebar__img" src="/img/playlist01.png" alt="day's playlist" />
+                    <NuxtImg
+                      class="sidebar__img"
+                      src="/img/playlist01.png"
+                      alt="Плейлист дня"
+                      :placeholder="[5]"
+                      loading="eager"
+                      quality="90"
+                      preload
+                    />
                 </NuxtLink>
               </div>
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/category/3">
-                  <img class="sidebar__img" src="/img/playlist02.png" alt="day's playlist" />
+                  <NuxtImg
+                    class="sidebar__img"
+                    src="/img/playlist02.png"
+                    alt="100 танцевальных хитов"
+                    :placeholder="[5]"
+                    loading="eager"
+                    quality="90"
+                    preload
+                  />
                 </NuxtLink>
               </div>
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/category/4">
-                  <img class="sidebar__img" src="/img/playlist03.png" alt="day's playlist" />
+                  <NuxtImg
+                    class="sidebar__img"
+                    src="/img/playlist03.png"
+                    alt="Инди-заряд"
+                    :placeholder="[5]"
+                    loading="eager"
+                    quality="90"
+                    preload
+                  />
                 </NuxtLink>
               </div>
             </div>

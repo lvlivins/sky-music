@@ -3,9 +3,19 @@
     <div class="container-enter">
       <div class="modal__block">
         <form class="modal__form-login" @submit.prevent="handleSubmit">
-          <div class="modal__logo">
-            <img src="/img/logo_modal.png" alt="logo" />
+          <NuxtLink to="/">
+            <div class="modal__logo">
+              <NuxtImg
+                src="/img/logo_modal.png"
+                alt="логотип Skypro Music"
+                :placeholder="[5]"
+                loading="eager"
+                quality="90"
+                format="webp"
+                preload
+              />
           </div>
+          </NuxtLink>
 
           <input
             v-model="email"
@@ -238,7 +248,6 @@ body {
   border-top: none;
   border-left: none;
   border-right: none;
-  border-bottom: 1px solid #d0cece;
   padding: 8px 1px;
 }
 
@@ -275,7 +284,6 @@ body {
   font-size: 18px;
   line-height: 24px;
   letter-spacing: -0.05px;
-  color: #d0cece;
 }
 
 .modal__btn-enter {

@@ -9,7 +9,16 @@ const toggleFilter = (filter) => {
 <template>
   <nav class="main__nav nav">
     <div class="nav__logo logo">
-      <img class="logo__image" src="/img/logo.png" alt="logo" />
+      <div class="logo__image">
+        <NuxtImg
+          src="/img/logo.png" alt="Лого"
+          :placeholder="[5]"
+          loading="eager"
+          quality="90"
+          format="webp"
+          preload
+        />
+      </div>
     </div>
     <div class="nav__burger burger" @click="toggleFilter('burger')">
       <span class="burger__line"></span>

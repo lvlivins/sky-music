@@ -8,6 +8,10 @@ export const usePlayerStore = defineStore("player", {
     progress: 0,
     volume: 50,
     audioRef: null,
+    // случайный порядок треков - shuffle
+    isShuffle: false,
+    // повтор текущего трека - loop
+    isLoop: false,
   }),
 
   actions: {
@@ -56,5 +60,15 @@ export const usePlayerStore = defineStore("player", {
       }
     },
 
+    toggleShuffle() {
+      this.isShuffle = !this.isShuffle;
+    },
+
+    toggleLoop() {
+      this.isLoop = !this.isLoop;
+      if (this.audioRef) {
+        this.audioRef.loop = this.isLoop;
+      }
+    },
   },
 });

@@ -11,6 +11,10 @@ const {
   seekTo,
   updateVolume,
   initPlayer,
+  playNext,
+  playPrev,
+  isFirstTrack,
+  isLastTrack,
 } = useAudioPlayer();
 
 onMounted(() => {
@@ -45,7 +49,11 @@ const handleProgressClick = (event) => {
       <div class="bar__player-block">
         <div class="bar__player player">
           <div class="player__controls">
-            <div class="player__btn-prev">
+            <div
+              class="player__btn-prev"
+              :class="{ disabled: isFirstTrack }"
+              @click="playPrev"
+            >
               <svg class="player__btn-prev-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-prev"></use>
               </svg>
@@ -61,17 +69,29 @@ const handleProgressClick = (event) => {
                 ></use>
               </svg>
             </div>
-            <div class="player__btn-next">
+            <div
+              class="player__btn-next"
+              :class="{ disabled: isLastTrack }"
+              @click="playNext"
+            >
               <svg class="player__btn-next-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-next"></use>
               </svg>
             </div>
-            <div class="player__btn-repeat _btn-icon">
+            <div
+              class="player__btn-repeat _btn-icon"
+              :class="{ active: playerStore.isLoop }"
+              @click="playerStore.toggleLoop"
+            >
               <svg class="player__btn-repeat-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-repeat"></use>
               </svg>
             </div>
-            <div class="player__btn-shuffle _btn-icon">
+            <div
+              class="player__btn-shuffle _btn-icon"
+              :class="{ active: playerStore.isShuffle }"
+              @click="playerStore.toggleShuffle"
+            >
               <svg class="player__btn-shuffle-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-shuffle"></use>
               </svg>
@@ -214,6 +234,7 @@ const handleProgressClick = (event) => {
 .player__btn-prev-svg {
   width: 15px;
   height: 14px;
+  cursor: pointer;
 }
 
 .player__btn-play {
@@ -236,6 +257,7 @@ const handleProgressClick = (event) => {
   height: 14px;
   fill: inherit;
   stroke: #d9d9d9;
+  cursor: pointer;
 }
 
 .player__btn-repeat {
@@ -263,6 +285,19 @@ const handleProgressClick = (event) => {
   height: 12px;
   fill: transparent;
   stroke: #696969;
+}
+
+.player__btn-prev.disabled,
+.player__btn-next.disabled {
+  opacity: 0.4;
+  cursor: default;
+
+}
+
+.player__btn-repeat.active .player__btn-repeat-svg,
+.player__btn-shuffle.active .player__btn-shuffle-svg {
+  stroke: #ffffff;
+  cursor: pointer;
 }
 
 .volume__content {

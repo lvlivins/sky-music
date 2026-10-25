@@ -1,10 +1,12 @@
 <script setup>
 import { useFiltersStore } from "~/stores/filters";
+import { usePlayerStore } from "~/stores/player";
 
 const { loading, error, tracks, formatDuration } = await useTracks("tracks-playlist");
 const { playTrack } = useAudioPlayer();
 
 const filtersStore = useFiltersStore();
+const playerStore = usePlayerStore();
 
 const props = defineProps({
   trackIds: { type: Array, default: null },
@@ -38,6 +40,11 @@ const shownTracks = computed(() => {
 
   return list;
 });
+
+const selectTrack = (track) => {
+  playerStore.setPlaylist(shownTracks.value);
+  playTrack(track);
+};
 </script>
 
 <template>
@@ -68,7 +75,7 @@ const shownTracks = computed(() => {
               </svg>
             </div>
             <div class="track__title-text">
-              <a class="track__title-link" href="#" @click="playTrack(track)">{{ track.name }}</a>
+              <a class="track__title-link" href="#" @click="selectTrack(track)">{{ track.name }}</a>
             </div>
           </div>
           <div class="track__author">

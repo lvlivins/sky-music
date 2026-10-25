@@ -1,4 +1,4 @@
-import { watchEffect } from "vue";
+import { computed, watchEffect } from "vue";
 import { usePlayerStore } from "~/stores/player";
 
 export function useAudioPlayer() {
@@ -46,6 +46,7 @@ export function useAudioPlayer() {
 
   const handleTrackEnd = () => {
     playerStore.setPlaying(false);
+    playNext();
   };
 
   // Перематываем
@@ -62,6 +63,66 @@ export function useAudioPlayer() {
     playerStore.audioRef.volume = playerStore.volume / 100;
   };
 
+  // Переключение треков
+  const currentIndex = computed(
+    function () {
+    const current = playerStore.currentTrack;
+
+    if (!current) {
+      return -1;
+    }
+
+    return playerStore.playlist.findIndex(
+      function (track) {
+      return track._id === current._id;
+    });
+  });
+
+
+  const isFirstTrack = computed(
+    function () {
+    return currentIndex.value <= 0;
+  });
+
+  const isLastTrack = computed(
+    function () {
+    if (playerStore.isShuffle) {
+      return false;
+    }
+
+    const lastIndex = playerStore.playlist.length - 1;
+    return currentIndex.value === lastIndex;
+  });
+
+  function playNext() {
+    if (isLastTrack.value) {
+      return;
+    }
+
+    if (playerStore.isShuffle) {
+      const otherTracks = playerStore.playlist.filter(
+        function (track) {
+        return track._id !== playerStore.currentTrack._id;
+      });
+
+      const randomIndex = Math.floor(Math.random() * otherTracks.length);
+      playTrack(otherTracks[randomIndex]);
+
+    } else {
+      const nextTrack = playerStore.playlist[currentIndex.value + 1];
+      playTrack(nextTrack);
+    }
+  }
+
+  function playPrev() {
+    if (isFirstTrack.value) {
+      return;
+    }
+
+    const prevTrack = playerStore.playlist[currentIndex.value - 1];
+    playTrack(prevTrack);
+  }
+
   // Закончился ли трек?
   watchEffect(() => {
     if (playerStore.progress >= 100 && playerStore.isPlaying) {
@@ -76,5 +137,9 @@ export function useAudioPlayer() {
     handleTrackEnd,
     seekTo,
     updateVolume,
+    playNext,
+    playPrev,
+    isFirstTrack,
+    isLastTrack,
   };
 }
