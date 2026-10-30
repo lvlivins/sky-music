@@ -1,8 +1,12 @@
 <script setup>
 const activeFilter = ref(null)
 
-const toggleFilter = (filter) => {
-  activeFilter.value = activeFilter.value === filter ? null : filter
+function toggleFilter(filter) {
+  if (activeFilter.value === filter) {
+    activeFilter.value = null
+  } else {
+    activeFilter.value = filter
+  }
 }
 </script>
 
@@ -34,7 +38,7 @@ const toggleFilter = (filter) => {
           <NuxtLink to="/favorites" class="menu__link">Мой плейлист</NuxtLink>
         </li>
         <li class="menu__item">
-          <NuxtLink to="/signin" class="menu__link">Войти</NuxtLink>
+          <NuxtLink to="/signin" class="menu__link">Выйти</NuxtLink>
         </li>
       </ul>
     </div>

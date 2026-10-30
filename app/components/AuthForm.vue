@@ -1,9 +1,107 @@
+<script setup>
+import { signIn, signUp } from '~/composables/useApi';
+
+const user = useCookie('user'); // кеш
+/*user.value = null; */
+
+const props = defineProps({
+  isRegistration: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const formData = ref({
+  login: '',
+  password: '',
+  confirmPassword: '',
+});
+
+const serverError = ref('');
+
+const errors = ref({
+  login: '',
+  password: '',
+  confirmPassword: '',
+});
+
+
+function validateForm() {
+  let isValid = true;
+
+  errors.value.login = '';
+  errors.value.password = '';
+  errors.value.confirmPassword = '';
+
+  if (!formData.value.login.trim()) {
+    errors.value.login = 'Введите почту';
+    isValid = false;
+
+  } else if (!formData.value.login.includes('@')) {
+    formData.value.login = '';
+    errors.value.login = 'Почта введена неверно';
+    isValid = false;
+  }
+
+  if (!formData.value.password.trim()) {
+    errors.value.password = 'Введите пароль';
+    isValid = false;
+
+  } else if (formData.value.password.length < 6) {
+    formData.value.password = '';
+    errors.value.password = 'Пароль минимум 6 символов';
+    isValid = false;
+  }
+
+  if (props.isRegistration) {
+    if (!formData.value.confirmPassword.trim()) {
+      errors.value.confirmPassword = 'Повторите пароль';
+      isValid = false;
+
+    } else if (formData.value.confirmPassword !== formData.value.password) {
+      formData.value.confirmPassword = '';
+      errors.value.confirmPassword = 'Пароли не совпадают';
+      isValid = false;
+    }
+  }
+
+  return isValid;
+}
+
+async function handleSubmit() {
+  serverError.value = '';
+
+  if (!validateForm()) {
+    return;
+  }
+
+  try {
+    if (props.isRegistration) {
+      await signUp(formData.value);
+
+      // После регистрации -> на страницу входа
+      navigateTo('/signin');
+    } else {
+      const data = await signIn(formData.value);
+      user.value = data; // кеш
+
+      navigateTo('/');
+    }
+  } catch (err) {
+    if (props.isRegistration) {
+      serverError.value = err.message;
+    } else {
+      serverError.value = 'Неверно введена почта или пароль';
+    }
+  }
+}
+</script>
+
 <template>
   <div class="wrapper">
     <div class="container-enter">
       <div class="modal__block">
         <form class="modal__form-login" @submit.prevent="handleSubmit">
-          <NuxtLink to="/">
             <div class="modal__logo">
               <NuxtImg
                 src="/img/logo_modal.png"
@@ -15,42 +113,50 @@
                 preload
               />
           </div>
-          </NuxtLink>
 
           <input
-            v-model="email"
+            v-model="formData.login"
             class="modal__input login"
-            :class="{ 'input-error': emailError }"
+            :class="{ 'input-error': errors.login }"
             type="text"
             name="login"
-            :placeholder="emailError || 'Почта'"
-            @focus="emailError = ''"
+            :placeholder="errors.login || 'Почта'"
+            @focus="errors.login = ''"
           />
 
           <input
-            v-model="password"
+            v-model="formData.password"
             class="modal__input password-first"
-            :class="{ 'input-error': passwordError }"
+            :class="{ 'input-error': errors.password, 'password-gap': isRegistration }"
             type="password"
             name="password"
-            :placeholder="passwordError || 'Пароль'"
-            @focus="passwordError = ''"
+            :placeholder="errors.password || 'Пароль'"
+            @focus="errors.password = ''"
           />
 
           <input
             v-if="isRegistration"
-            v-model="confirmPassword"
+            v-model="formData.confirmPassword"
             class="modal__input password-double"
+            :class="{ 'input-error': errors.confirmPassword }"
             type="password"
-            name="password"
-            placeholder="Повторите пароль"
+            name="confirmPassword"
+            :placeholder="errors.confirmPassword || 'Повторите пароль'"
+            @focus="errors.confirmPassword = ''"
           />
+
+          <p
+            v-if="serverError"
+            class="server-error"
+          >{{ serverError }}
+          </p>
 
           <button type="submit" class="modal__btn-enter">
             <a>{{ isRegistration ? "Зарегистрироваться" : "Войти" }}</a>
           </button>
 
           <NuxtLink
+            v-if="!isRegistration"
             :to="isRegistration ? '/signin' : '/signup'"
             class="modal__btn-signup"
           >
@@ -62,52 +168,19 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  isRegistration: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-const emit = defineEmits(["submit"]);
-
-const email = ref("");
-const password = ref("");
-const confirmPassword = ref("");
-
-const emailError = ref("");
-const passwordError = ref("");
-
-const handleSubmit = async () => {
-  emailError.value = "";
-  passwordError.value = "";
-
-  if (!email.value.trim()) {
-    emailError.value = "Введите логин";
-  } else if (!email.value.includes("@")) {
-    email.value = "";
-    emailError.value = "Логин введён неверно";
-  }
-
-  if (!password.value.trim()) {
-    passwordError.value = "Введите пароль";
-  }
-
-  if (emailError.value || passwordError.value) {
-    return;
-  }
-
-  if (props.isRegistration && password.value !== confirmPassword.value) {
-    alert("Пароли не совпадают");
-    return;
-  }
-
-  emit("submit", { email: email.value, password: password.value });
-};
-</script>
-
 <style scoped>
+.server-error {
+  position: relative;
+  z-index: 1;
+  top: 20px;
+  width: 100%;
+  height: 0;
+  color: #ff4d4f;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+
 .modal__input {
   font-style: normal;
   font-weight: 400;
@@ -157,9 +230,8 @@ ul li {
 @font-face {
   font-family: "StratosSkyeng";
   src: local("StratosSkyeng"), local("StratosSkyeng"),
-  url("../fonts/StratosSkyeng.woff2") format("woff2"),
-  url("../fonts/StratosSkyeng.woff") format("woff"),
-  url("../fonts/StratosSkyeng.ttf") format("truetype");
+  url("/fonts/StratosSkyeng.woff2") format("woff2"),
+  url("/fonts/StratosSkyeng.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
@@ -211,7 +283,7 @@ body {
 
 .modal__form-login {
   width: 366px;
-  height: 439px;
+  min-height: 439px;
   background-color: #ffffff;
   border-radius: 12px;
   display: -webkit-box;
@@ -369,6 +441,10 @@ body {
 }
 
 .login {
+  margin-bottom: 30px;
+}
+
+.password-gap {
   margin-bottom: 30px;
 }
 

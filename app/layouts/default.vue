@@ -1,6 +1,8 @@
 <script setup>
+// меню слева, сайдбар справа, плеер внизу
 const route = useRoute();
 const origin = useRequestURL().origin;
+const user = useCookie("user"); // функция Nuxt из коробки
 
 useHead(() => ({
   title: "Skypro.Music",
@@ -23,12 +25,23 @@ useHead(() => ({
       <main class="main">
         <Navbar />
         <div class="main__centerblock centerblock">
+          <div class="centerblock__search search">
+            <svg class="search__svg">
+              <use xlink:href="/img/icon/sprite.svg#icon-search"></use>
+            </svg>
+            <input
+              class="search__text"
+              type="search"
+              placeholder="Поиск"
+              name="search"
+            />
+          </div>
           <slot></slot>
         </div>
 
         <div class="main__sidebar sidebar">
           <div class="sidebar__personal">
-            <p class="sidebar__personal-name">Sergey.Ivanov</p>
+            <p class="sidebar__personal-name">{{ user?.username }}</p>
             <NuxtLink to="/signin">
               <div class="sidebar__icon">
                 <svg>
@@ -211,5 +224,80 @@ useHead(() => ({
 .sidebar__img {
   width: 100%;
   height: auto;
+}
+
+.centerblock__search {
+  width: 100%;
+  border-bottom: 1px solid #4e4e4e;
+  margin-bottom: 51px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.search__svg {
+  width: 17px;
+  height: 17px;
+  margin-right: 5px;
+  stroke: #ffffff;
+  fill: transparent;
+}
+
+.search__text {
+  -webkit-box-flex: 100;
+  -ms-flex-positive: 100;
+  flex-grow: 100;
+  background-color: transparent;
+  border: none;
+  padding: 13px 10px 14px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  outline: none;
+}
+
+.search__text::-webkit-input-placeholder {
+  background-color: transparent;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.search__text:-ms-input-placeholder {
+  background-color: transparent;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.search__text::-ms-input-placeholder {
+  background-color: transparent;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.search__text::placeholder {
+  background-color: transparent;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
 }
 </style>
