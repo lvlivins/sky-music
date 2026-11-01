@@ -5,7 +5,6 @@ export const useTracks = async (key = "tracks") => {
     data: response,
     pending: loading,
     error,
-    refresh: fetchTracks,
   } = await useFetch(`${API_URL}/catalog/track/all/`, {
     key,
     transform: (response) => response.data,
@@ -23,7 +22,6 @@ export const useTracks = async (key = "tracks") => {
     tracks,
     loading,
     error,
-    fetchTracks,
     formatDuration,
   };
 };

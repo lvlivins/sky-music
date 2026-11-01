@@ -1,7 +1,8 @@
 <script setup>
-import { usePlayerStore } from "~/stores/player";
+import { usePlayerStore } from '~/stores/player';
 
 const playerStore = usePlayerStore();
+const { toggleLike } = useAudioPlayer();
 </script>
 
 <template>
@@ -14,16 +15,24 @@ const playerStore = usePlayerStore();
       </div>
       <div class="track-play__author">
         <a class="track-play__author-link" href="#">{{
-          playerStore.currentTrack?.author || "Выберите трек"
+          playerStore.currentTrack?.author
         }}</a>
       </div>
       <div class="track-play__album">
-        <a class="track-play__album-link" href="#">{{playerStore.currentTrack?.album || "" }}</a>
+        <a class="track-play__album-link" href="#">{{
+            playerStore.currentTrack?.album
+          }}</a>
       </div>
     </div>
     <div class="track-play__like-dis">
       <div class="track-play__like _btn-icon">
-        <svg class="track-play__like-svg">
+        <svg
+          class="track-play__like-svg"
+          :class="{
+          liked: playerStore.likedIds.includes(playerStore.currentTrack?._id)
+        }"
+          @click="toggleLike(playerStore.currentTrack)"
+        >
           <use xlink:href="/img/icon/sprite.svg#icon-like"></use>
         </svg>
       </div>
@@ -143,6 +152,11 @@ const playerStore = usePlayerStore();
   height: 12px;
   fill: transparent;
   stroke: #696969;
+}
+
+.track-play__like-svg.liked {
+  fill: #b672ff;
+  stroke: #b672ff;
 }
 
 .track-play__dislike {

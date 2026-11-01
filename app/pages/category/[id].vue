@@ -2,16 +2,18 @@
 const route = useRoute();
 const origin = useRequestURL().origin;
 
-const { categoryName, trackIds, fetchCategoryData } = useCategoryTracks();
+const { categoryName, trackIds, fetchCategoryData, notFound } = useCategoryTracks();
 
 await fetchCategoryData(route.params.id);
 
-const head = useHead({ title: "Skypro.Music" });
+const head = useHead({
+  title: "Skypro.Music"
+});
 
 watch(
   [categoryName, () => route.params.id],
   ([name]) => {
-    const newName = name || "Подборка";
+    const newName = name;
     head.patch({
       title: `${newName} | Skypro.Music`,
       meta: [
@@ -35,11 +37,16 @@ watch(
     }
   }
 );
+
+if (notFound.value) {
+  throw createError({ statusCode: 404, message: "Подборка не найдена" });
+}
 </script>
 
 <template>
   <div>
     <h2 class="centerblock__h2">{{ categoryName }}</h2>
+    <FilterControls />
     <Playlist :track-ids="trackIds" />
   </div>
 </template>

@@ -34,7 +34,7 @@ export const useFiltersStore = defineStore("filters", {
     },
 
     selectYear(year) {
-      this.selectedYear = this.selectedYear === year ? null : year;
+      this.selectedYear = year;
       this.activeFilter = null;
     },
   },

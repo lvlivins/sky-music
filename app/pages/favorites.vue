@@ -1,4 +1,6 @@
 <script setup>
+const refreshToken = useCookie("refresh");
+
 useHead({
   title: "Мои треки | Skypro.Music",
   meta: [
@@ -8,12 +10,20 @@ useHead({
     { name: "twitter:title", content: "Мои треки | Skypro.Music" },
   ],
 });
+
+if (!refreshToken.value) {
+  await navigateTo({
+    path: "/signin",
+    query: { redirect: "/favorites" },
+  });
+}
 </script>
 
 <template>
   <div>
     <h2 class="centerblock__h2">Мои треки</h2>
-<!--    тут стр с избр-->
+    <FilterControls />
+    <Playlist :only-liked="true" />
   </div>
 </template>
 

@@ -22,7 +22,6 @@ onUnmounted(() => {
 })
 
 const authorItems = computed(() => {
-  if (!tracks.value) return []
   const items = new Set()
   tracks.value.forEach((track) => {
     if (track.author) {
@@ -36,29 +35,12 @@ const authorItems = computed(() => {
   })
 })
 
-const yearItems = computed(() => {
-  if (!tracks.value) return []
-  const items = new Set()
-  tracks.value.forEach((track) => {
-    const year = track.release_date?.split("-")[0] || "Неизвестно"
-    items.add(year)
-  })
-  return Array.from(items).sort((a, b) => {
-    if (a === "Неизвестно") return 1
-    if (b === "Неизвестно") return -1
-    return b.localeCompare(a)
-  })
-})
+const yearItems = ["По умолчанию", "Сначала новые", "Сначала старые"]
 
 const genreItems = computed(() => {
-  if (!tracks.value) return []
   const items = new Set()
   tracks.value.forEach((track) => {
-    if (Array.isArray(track.genre)) {
       track.genre.forEach((g) => g && items.add(g.toLowerCase().trim()))
-    } else if (track.genre) {
-      items.add(track.genre.toLowerCase().trim())
-    }
   })
   return Array.from(items).sort((a, b) => {
     if (a === "неизвестно") return 1

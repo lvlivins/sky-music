@@ -1,16 +1,38 @@
 <script setup>
-import { useFiltersStore } from "~/stores/filters";
-import { usePlayerStore } from "~/stores/player";
+import { useFiltersStore } from '~/stores/filters';
+import { usePlayerStore } from '~/stores/player';
+import { getFavorites, updateToken } from "~/composables/useApi";
 
 const { loading, error, tracks, formatDuration } = await useTracks("tracks-playlist");
-const { playTrack } = useAudioPlayer();
+const { playTrack, toggleLike } = useAudioPlayer();
 
 const filtersStore = useFiltersStore();
 const playerStore = usePlayerStore();
+const accessToken = useCookie("access");
+const refreshToken = useCookie("refresh");
+const likedIds = toRef(playerStore, "likedIds");
 
 const props = defineProps({
   trackIds: { type: Array, default: null },
   withFilters: { type: Boolean, default: false },// клик фильтруем !!
+  onlyLiked: { type: Boolean, default: false },
+});
+
+onMounted(async function () {
+  if (refreshToken.value) {
+    try {
+      const tokens = await updateToken(refreshToken.value);
+      accessToken.value = tokens.access;
+
+      const response = await getFavorites(accessToken.value);
+      likedIds.value = response.data.map(
+        function (track) {
+        return track._id;
+      });
+    } catch (error) {
+      likedIds.value = [];
+    }
+  }
 });
 
 const shownTracks = computed(() => {
@@ -20,20 +42,35 @@ const shownTracks = computed(() => {
     list = list.filter((track) => props.trackIds.includes(track._id));
   }
 
+  if (props.onlyLiked) {
+    list = list.filter(
+      function (track) {
+      return likedIds.value.includes(track._id);
+    });
+  }
+
   if (props.withFilters) {
     if (filtersStore.selectedAuthors.length) {
       list = list.filter((track) => filtersStore.selectedAuthors.includes(track.author));
     }
     if (filtersStore.selectedGenres.length) {
-      list = list.filter((track) => {
-        const genres = Array.isArray(track.genre) ? track.genre : [track.genre];
-        return genres.some((g) => g && filtersStore.selectedGenres.includes(g.toLowerCase().trim()));
+      list = list.filter(function(track) {
+        return track.genre.some(
+          function(g) {
+          return filtersStore.selectedGenres.includes(g.toLowerCase().trim());
+        });
       });
     }
-    if (filtersStore.selectedYear) {
-      list = list.filter((track) => {
-        const year = track.release_date?.split("-")[0] || "Неизвестно";
-        return year === filtersStore.selectedYear;
+    if (filtersStore.selectedYear === 'Сначала новые') {
+      list = list.slice().sort(
+        function(a, b) {
+        return (b.release_date || '0000').localeCompare(a.release_date || '0000');
+      });
+    }
+    if (filtersStore.selectedYear === 'Сначала старые') {
+      list = list.slice().sort(
+        function(a, b) {
+        return (a.release_date || '9999').localeCompare(b.release_date || '9999');
       });
     }
   }
@@ -85,7 +122,11 @@ const selectTrack = (track) => {
             <a class="track__album-link" href="#">{{ track.album }}</a>
           </div>
           <div class="track__time">
-            <svg class="track__time-svg">
+            <svg
+              class="track__time-svg"
+              :class="{ liked: likedIds.includes(track._id) }"
+              @click="toggleLike(track)"
+            >
               <use xlink:href="/img/icon/sprite.svg#icon-like"></use>
             </svg>
             <span class="track__time-text">{{ formatDuration(track.duration_in_seconds) }}</span>
@@ -268,12 +309,24 @@ const selectTrack = (track) => {
   color: #696969;
 }
 
+.track__time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 60px;
+}
+
 .track__time-svg {
   width: 14px;
   height: 12px;
-  margin-right: 17px;
   fill: transparent;
   stroke: #696969;
+  cursor: pointer;
+}
+
+.track__time-svg.liked {
+  fill: #b672ff;
+  stroke: #b672ff;
 }
 
 .track__time-text {

@@ -12,6 +12,7 @@ export const usePlayerStore = defineStore("player", {
     isShuffle: false,
     // повтор текущего трека - loop
     isLoop: false,
+    likedIds: [],
   }),
 
   actions: {
@@ -30,10 +31,10 @@ export const usePlayerStore = defineStore("player", {
       this.progress = progress;
     },
 
-    // Установить громкость
-    setVolume(volume) {
-      this.volume = volume;
-    },
+    // // Установить громкость
+    // setVolume(volume) {
+    //   this.volume = volume;
+    // },
 
     // Установить состояние воспроизведения
     setPlaying(isPlaying) {
@@ -49,7 +50,7 @@ export const usePlayerStore = defineStore("player", {
     },
 
     togglePlay() {
-      if (!this.audioRef || !this.currentTrack) return;
+      if (!this.audioRef) return;
 
       if (this.isPlaying) {
         this.audioRef.pause();

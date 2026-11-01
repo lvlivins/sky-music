@@ -1,9 +1,37 @@
 import { computed, watchEffect } from "vue";
 import { usePlayerStore } from "~/stores/player";
+import { updateToken, addFavorite, removeFavorite } from "~/composables/useApi";
 
 export function useAudioPlayer() {
   // Получаем store, чтобы менять данные в хранилище
   const playerStore = usePlayerStore();
+  const accessToken = useCookie("access");
+  const refreshToken = useCookie("refresh");
+
+  async function toggleLike(track) {
+    if (!refreshToken.value) {
+      return;
+    }
+
+    try {
+      const tokens = await updateToken(refreshToken.value);
+      accessToken.value = tokens.access;
+
+      if (playerStore.likedIds.includes(track._id)) {
+        await removeFavorite(track._id, accessToken.value);
+        playerStore.likedIds = playerStore.likedIds.filter(function (id) {
+          return id !== track._id;
+        });
+      } else {
+        await addFavorite(track._id, accessToken.value);
+        playerStore.likedIds.push(track._id);
+      }
+    } catch (error) {
+      accessToken.value = null;
+      refreshToken.value = null;
+      playerStore.likedIds = [];
+    }
+  }
 
   // Инициализируем плеер в самом начале
   const initPlayer = (element) => {
@@ -51,7 +79,7 @@ export function useAudioPlayer() {
 
   // Перематываем
   const seekTo = (percentage) => {
-    if (!playerStore.audioRef || !playerStore.currentTrack) return;
+    if (!playerStore.audioRef) return;
     const newTime = (percentage / 100) * playerStore.audioRef.duration;
     playerStore.audioRef.currentTime = newTime;
     playerStore.setProgress(percentage);
@@ -141,5 +169,6 @@ export function useAudioPlayer() {
     playPrev,
     isFirstTrack,
     isLastTrack,
+    toggleLike,
   };
 }

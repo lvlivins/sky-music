@@ -1,5 +1,6 @@
 <script setup>
 const activeFilter = ref(null)
+const refreshToken = useCookie("refresh")
 
 function toggleFilter(filter) {
   if (activeFilter.value === filter) {
@@ -12,7 +13,7 @@ function toggleFilter(filter) {
 
 <template>
   <nav class="main__nav nav">
-    <div class="nav__logo logo">
+    <NuxtLink to="/" class="nav__logo logo">
       <div class="logo__image">
         <NuxtImg
           src="/img/logo.png" alt="Лого"
@@ -23,7 +24,7 @@ function toggleFilter(filter) {
           preload
         />
       </div>
-    </div>
+    </NuxtLink>
     <div class="nav__burger burger" @click="toggleFilter('burger')">
       <span class="burger__line"></span>
       <span class="burger__line"></span>
@@ -38,7 +39,8 @@ function toggleFilter(filter) {
           <NuxtLink to="/favorites" class="menu__link">Мой плейлист</NuxtLink>
         </li>
         <li class="menu__item">
-          <NuxtLink to="/signin" class="menu__link">Выйти</NuxtLink>
+          <NuxtLink v-if="refreshToken" to="/signin" class="menu__link">Выйти</NuxtLink>
+          <NuxtLink v-else to="/signin" class="menu__link">Войти</NuxtLink>
         </li>
       </ul>
     </div>
@@ -59,6 +61,7 @@ function toggleFilter(filter) {
   background-color: transparent;
   margin-bottom: 20px;
   cursor: pointer;
+  display: block;
 }
 
 .nav__burger {

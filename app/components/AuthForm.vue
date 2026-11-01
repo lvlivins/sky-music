@@ -1,8 +1,14 @@
 <script setup>
-import { signIn, signUp } from '~/composables/useApi';
+import { signIn, signUp, getToken } from '~/composables/useApi';
 
-const user = useCookie('user'); // кеш
-/*user.value = null; */
+const user = useCookie('user'); //
+const route = useRoute();
+const accessToken = useCookie('access');
+const refreshToken = useCookie('refresh');
+
+user.value = null;
+accessToken.value = null;
+refreshToken.value = null;
 
 const props = defineProps({
   isRegistration: {
@@ -83,9 +89,15 @@ async function handleSubmit() {
       navigateTo('/signin');
     } else {
       const data = await signIn(formData.value);
-      user.value = data; // кеш
-
-      navigateTo('/');
+      const tokens = await getToken(formData.value);
+      user.value = data; //
+      accessToken.value = tokens.access;
+      refreshToken.value = tokens.refresh;
+      if (route.query.redirect) {
+        navigateTo(route.query.redirect);
+      } else {
+        navigateTo('/');
+      }
     }
   } catch (err) {
     if (props.isRegistration) {
@@ -157,10 +169,10 @@ async function handleSubmit() {
 
           <NuxtLink
             v-if="!isRegistration"
-            :to="isRegistration ? '/signin' : '/signup'"
+            to='/signup'
             class="modal__btn-signup"
           >
-            {{ isRegistration ? "Войти" : "Зарегистрироваться" }}
+            Зарегистрироваться
           </NuxtLink>
         </form>
       </div>
@@ -297,10 +309,6 @@ body {
   -ms-flex-align: center;
   align-items: center;
   padding: 43px 47px 47px 40px;
-}
-
-.modal__form-login input:first-child {
-  margin-bottom: 30px;
 }
 
 .modal__logo {

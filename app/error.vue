@@ -26,7 +26,7 @@ defineProps({
 .error-page_box {
   width: 366px;
   height: 210px;
-  background-color: #3f007d;;
+  background-color: #3f007d;
   border-radius: 12px;
   padding: 43px 47px 47px 40px;
   position: absolute;

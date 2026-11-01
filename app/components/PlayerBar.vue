@@ -4,7 +4,6 @@ import { usePlayerStore } from "~/stores/player";
 const playerStore = usePlayerStore();
 const audioRef = ref(null);
 
-// функции из composable
 const {
   handleTimeUpdate,
   handleTrackEnd,
@@ -27,8 +26,6 @@ const handlePlay = () => {
 
 // Клик по прогресс-бару, чтобы перемотать трек
 const handleProgressClick = (event) => {
-  if (!playerStore.currentTrack) return;
-
   const progressBar = event.currentTarget;
   // где конкретно кликнули
   const clickPosition = event.offsetX;

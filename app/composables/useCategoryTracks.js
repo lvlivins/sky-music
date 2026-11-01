@@ -3,28 +3,26 @@ const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
 export const useCategoryTracks = () => {
   const categoryName = ref("");
   const trackIds = ref([]);
-  const loading = ref(false);
-  const error = ref(null);
+  const notFound = ref(false);
 
   const fetchCategoryData = async (id) => {
-    loading.value = true;
-    error.value = null;
+    notFound.value = false;
     try {
       const response = await $fetch(`${API_URL}/catalog/selection/${id}/`);
+      if (!response.data) {
+        notFound.value = true;
+      }
       categoryName.value = response.data?.name || "Подборка";
       trackIds.value = response.data?.items || [];
     } catch (e) {
-      error.value = e;
-    } finally {
-      loading.value = false;
+      notFound.value = true;
     }
   };
 
   return {
     categoryName,
     trackIds,
-    loading,
-    error,
     fetchCategoryData,
+    notFound,
   };
 };
