@@ -5,21 +5,28 @@ export const useFiltersStore = defineStore("filters", {
     activeFilter: null,
     selectedAuthors: [],
     selectedGenres: [],
-    selectedYear: null,
+    selectedYear: null, // По умолчанию
   }),
+
+  closeFilter() { // клик в сторону на закрытие
+    this.activeFilter = null;
+  },
 
   actions: {
     toggleFilter(filter) {
-      this.activeFilter = this.activeFilter === filter ? null : filter;
-    },
-
-    closeFilter() {
-      this.activeFilter = null;
+      if (this.activeFilter === filter) {
+        this.activeFilter = null;
+      } else {
+        this.activeFilter = filter;
+      }
     },
 
     toggleAuthor(author) {
       if (this.selectedAuthors.includes(author)) {
-        this.selectedAuthors = this.selectedAuthors.filter((a) => a !== author);
+        this.selectedAuthors = this.selectedAuthors.filter(
+          function (e) {
+          return e !== author;
+        });
       } else {
         this.selectedAuthors.push(author);
       }
@@ -27,7 +34,9 @@ export const useFiltersStore = defineStore("filters", {
 
     toggleGenre(genre) {
       if (this.selectedGenres.includes(genre)) {
-        this.selectedGenres = this.selectedGenres.filter((g) => g !== genre);
+        this.selectedGenres = this.selectedGenres.filter(function (g) {
+          return g !== genre;
+        });
       } else {
         this.selectedGenres.push(genre);
       }
@@ -35,7 +44,6 @@ export const useFiltersStore = defineStore("filters", {
 
     selectYear(year) {
       this.selectedYear = year;
-      this.activeFilter = null;
     },
   },
 });

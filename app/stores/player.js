@@ -41,7 +41,7 @@ export const usePlayerStore = defineStore("player", {
       this.isPlaying = isPlaying;
     },
 
-    // Установить ссылку на аудиоэлемент
+    // audio = 0-1, надо поменять на 0-100
     setAudioRef(element) {
       this.audioRef = element;
       if (this.audioRef) {
@@ -65,6 +65,7 @@ export const usePlayerStore = defineStore("player", {
       this.isShuffle = !this.isShuffle;
     },
 
+    //  повтор
     toggleLoop() {
       this.isLoop = !this.isLoop;
       if (this.audioRef) {
