@@ -1,0 +1,117 @@
+<script setup>
+const activeFilter = ref(null)
+const refreshToken = useCookie("refresh")
+
+function toggleFilter(filter) {
+  if (activeFilter.value === filter) {
+    activeFilter.value = null
+  } else {
+    activeFilter.value = filter
+  }
+}
+</script>
+
+<template>
+  <nav class="main__nav nav">
+    <NuxtLink to="/" class="nav__logo logo">
+      <div class="logo__image">
+        <NuxtImg
+          src="/img/logo.png" alt="Лого"
+          :placeholder="[5]"
+          loading="eager"
+          quality="90"
+          format="webp"
+          preload
+        />
+      </div>
+    </NuxtLink>
+    <div class="nav__burger burger" @click="toggleFilter('burger')">
+      <span class="burger__line"></span>
+      <span class="burger__line"></span>
+      <span class="burger__line"></span>
+    </div>
+    <div class="nav__menu menu" v-show="activeFilter === 'burger'">
+      <ul class="menu__list">
+        <li class="menu__item">
+          <NuxtLink to="/" class="menu__link">Главное</NuxtLink>
+        </li>
+        <li class="menu__item">
+          <NuxtLink to="/favorites" class="menu__link">Мой плейлист</NuxtLink>
+        </li>
+        <li class="menu__item">
+          <NuxtLink v-if="refreshToken" to="/signin" class="menu__link">Выйти</NuxtLink>
+          <NuxtLink v-else to="/signin" class="menu__link">Войти</NuxtLink>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</template>
+
+<style scoped>
+.main__nav {
+  width: 244px;
+  background-color: #181818;
+  padding: 20px 0 20px 36px;
+}
+
+.nav__logo {
+  width: 113.33px;
+  height: 43px;
+  padding: 13px 0 13px 0;
+  background-color: transparent;
+  margin-bottom: 20px;
+  cursor: pointer;
+  display: block;
+}
+
+.nav__burger {
+  width: 20px;
+  height: 36px;
+  padding: 13px 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.nav__menu {
+  display: block;
+  visibility: visible;
+}
+
+.logo__image {
+  width: 113.33px;
+  height: 17px;
+  color: #181818;
+}
+
+.burger__line {
+  display: inline-block;
+  width: 100%;
+  height: 1px;
+  background-color: #d3d3d3;
+}
+
+.menu__list {
+  padding: 18px 0 10px 0;
+}
+
+.menu__item {
+  padding: 5px 0;
+  margin-bottom: 16px;
+}
+
+.menu__link {
+  color: #ffffff;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+</style>

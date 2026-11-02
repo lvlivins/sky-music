@@ -1,0 +1,335 @@
+<script setup>
+import { usePlayerStore } from "~/stores/player";
+
+const playerStore = usePlayerStore();
+const audioRef = ref(null);
+
+const {
+  handleTimeUpdate,
+  handleTrackEnd,
+  seekTo,
+  updateVolume,
+  initPlayer,
+  playNext,
+  playPrev,
+  isFirstTrack,
+  isLastTrack,
+} = useAudioPlayer();
+
+onMounted(() => {
+  initPlayer(audioRef.value);
+});
+
+const handlePlay = () => {
+  playerStore.togglePlay();
+};
+
+// Клик по прогресс-бару, чтобы перемотать трек
+const handleProgressClick = (event) => {
+  const progressBar = event.currentTarget;
+  // где конкретно кликнули
+  const clickPosition = event.offsetX;
+  // общая ширина бара
+  const progressBarWidth = progressBar.offsetWidth;
+  // процент клика от ширины: середина - 50%
+  const percentage = (clickPosition / progressBarWidth) * 100;
+  seekTo(percentage);
+};
+</script>
+
+<template>
+  <div v-show="playerStore.currentTrack" class="bar">
+    <div class="bar__content">
+      <div class="bar__player-progress" @click="handleProgressClick">
+        <div class="bar__player-progress-line"></div>
+      </div>
+      <div class="bar__player-block">
+        <div class="bar__player player">
+          <div class="player__controls">
+            <div
+              class="player__btn-prev"
+              :class="{ disabled: isFirstTrack }"
+              @click="playPrev"
+            >
+              <svg class="player__btn-prev-svg">
+                <use xlink:href="/img/icon/sprite.svg#icon-prev"></use>
+              </svg>
+            </div>
+            <div class="player__btn-play _btn" @click="handlePlay">
+              <svg class="player__btn-play-svg">
+                <use
+                  :xlink:href="
+                    playerStore.isPlaying
+                      ? '/img/icon/sprite.svg#icon-pause'
+                      : '/img/icon/sprite.svg#icon-play'
+                  "
+                ></use>
+              </svg>
+            </div>
+            <div
+              class="player__btn-next"
+              :class="{ disabled: isLastTrack }"
+              @click="playNext"
+            >
+              <svg class="player__btn-next-svg">
+                <use xlink:href="/img/icon/sprite.svg#icon-next"></use>
+              </svg>
+            </div>
+            <div
+              class="player__btn-repeat _btn-icon"
+              :class="{ active: playerStore.isLoop }"
+              @click="playerStore.toggleLoop"
+            >
+              <svg class="player__btn-repeat-svg">
+                <use xlink:href="/img/icon/sprite.svg#icon-repeat"></use>
+              </svg>
+            </div>
+            <div
+              class="player__btn-shuffle _btn-icon"
+              :class="{ active: playerStore.isShuffle }"
+              @click="playerStore.toggleShuffle"
+            >
+              <svg class="player__btn-shuffle-svg">
+                <use xlink:href="/img/icon/sprite.svg#icon-shuffle"></use>
+              </svg>
+            </div>
+          </div>
+
+          <Track />
+
+        </div>
+        <div class="bar__volume-block volume">
+          <div class="volume__content">
+            <div class="volume__image">
+              <svg class="volume__svg">
+                <use xlink:href="/img/icon/sprite.svg#icon-volume"></use>
+              </svg>
+            </div>
+            <div class="volume__progress _btn">
+              <input
+                v-model="playerStore.volume"
+                class="volume__progress-line _btn"
+                type="range"
+                name="range"
+                min="0"
+                max="100"
+                @input="updateVolume"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <audio
+      ref="audioRef"
+      @timeupdate="handleTimeUpdate"
+      @ended="handleTrackEnd"
+    />
+  </div>
+</template>
+
+<style scoped>
+.bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(28, 28, 28, 0.5);
+}
+
+.bar__content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.bar__player-progress {
+  width: 100%;
+  height: 5px;
+  background: #2e2e2e;
+}
+
+.bar__player-progress-line {
+  width: v-bind("playerStore.progress + '%'");
+  height: 100%;
+  background: #ffffff;
+}
+.bar__player-block {
+  height: 73px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.bar__player {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+}
+
+.bar__volume-block {
+  width: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 0 92px 0 0;
+}
+
+.player__controls {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  padding: 0 27px 0 31px;
+}
+
+.player__btn-prev,
+.player__btn-play,
+.player__btn-next,
+.player__btn-repeat,
+.player__btn-shuffle {
+  padding: 5px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.player__btn-prev {
+  margin-right: 23px;
+}
+
+.player__btn-prev-svg {
+  width: 15px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.player__btn-play {
+  margin-right: 23px;
+}
+
+.player__btn-play-svg {
+  width: 22px;
+  height: 20px;
+  fill: #d9d9d9;
+}
+
+.player__btn-next {
+  margin-right: 28px;
+  fill: #a53939;
+}
+
+.player__btn-next-svg {
+  width: 15px;
+  height: 14px;
+  fill: inherit;
+  stroke: #d9d9d9;
+  cursor: pointer;
+}
+
+.player__btn-repeat {
+  margin-right: 24px;
+}
+
+.player__btn-repeat-svg {
+  width: 18px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+}
+
+.player__btn-shuffle {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.player__btn-shuffle-svg {
+  width: 19px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+}
+
+.player__btn-prev.disabled,
+.player__btn-next.disabled {
+  opacity: 0.4;
+  cursor: default;
+
+}
+
+.player__btn-repeat.active .player__btn-repeat-svg,
+.player__btn-shuffle.active .player__btn-shuffle-svg {
+  stroke: #ffffff;
+  cursor: pointer;
+}
+
+.volume__content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: end;
+}
+
+.volume__image {
+  width: 13px;
+  height: 18px;
+  margin-right: 17px;
+}
+
+.volume__svg {
+  width: 13px;
+  height: 18px;
+  fill: transparent;
+}
+
+.volume__progress {
+  width: 109px;
+}
+
+.volume__progress-line {
+  width: 109px;
+}
+</style>
