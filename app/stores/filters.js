@@ -8,11 +8,11 @@ export const useFiltersStore = defineStore("filters", {
     selectedYear: null, // По умолчанию
   }),
 
-  closeFilter() { // клик в сторону на закрытие
-    this.activeFilter = null;
-  },
-
   actions: {
+    closeFilter() { // клик в сторону на закрытие
+      this.activeFilter = null;
+    },
+
     toggleFilter(filter) {
       if (this.activeFilter === filter) {
         this.activeFilter = null;

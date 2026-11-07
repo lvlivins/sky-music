@@ -107,7 +107,12 @@ const selectTrack = (track) => {
         <div class="playlist__track track">
           <div class="track__title">
             <div class="track__title-image">
-              <svg class="track__title-svg">
+              <span
+                v-if="playerStore.currentTrack?._id === track._id"
+                class="playing-dot"
+                :class="{ playing: playerStore.isPlaying }"
+              ></span>
+              <svg v-else class="track__title-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-note"></use>
               </svg>
             </div>
@@ -336,5 +341,26 @@ const selectTrack = (track) => {
   line-height: 24px;
   text-align: right;
   color: #696969;
+}
+
+.playing-dot {
+  width: 16px;
+  height: 16px;
+  background-color: #b672ff;
+  border-radius: 8px;
+}
+
+.playing-dot.playing {
+  animation: bubble_out 0.6s ease-in-out infinite both;
+}
+
+@keyframes bubble_out {
+  0%,
+  to {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1);
+  }
 }
 </style>
