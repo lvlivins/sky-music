@@ -39,8 +39,8 @@ function toggleFilter(filter) {
           <NuxtLink to="/favorites" class="menu__link">Мой плейлист</NuxtLink>
         </li>
         <li class="menu__item">
-          <NuxtLink v-if="refreshToken" to="/signin" class="menu__link">Выйти</NuxtLink>
-          <NuxtLink v-else to="/signin" class="menu__link">Войти</NuxtLink>
+          <NuxtLink v-if="refreshToken" to="/sign" class="menu__link">Выйти</NuxtLink>
+          <NuxtLink v-else to="/sign" class="menu__link">Войти</NuxtLink>
         </li>
       </ul>
     </div>

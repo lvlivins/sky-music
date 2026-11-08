@@ -42,7 +42,7 @@ useHead(() => ({
         <div class="main__sidebar sidebar">
           <div class="sidebar__personal">
             <p class="sidebar__personal-name">{{ user?.username }}</p>
-            <NuxtLink to="/signin">
+            <NuxtLink to="/sign">
               <div class="sidebar__icon">
                 <svg>
                   <use xlink:href="/img/icon/sprite.svg#logout"></use>

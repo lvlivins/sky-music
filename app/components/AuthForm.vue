@@ -1,5 +1,5 @@
 <script setup>
-import { signIn, signUp, getToken } from '~/composables/useApi';
+import { getToken, signIn, signUp } from '~/composables/useApi';
 
 const user = useCookie('user'); //
 const route = useRoute();
@@ -10,12 +10,7 @@ user.value = null;
 accessToken.value = null;
 refreshToken.value = null;
 
-const props = defineProps({
-  isRegistration: {
-    type: Boolean,
-    default: false,
-  },
-});
+const isRegistration = ref(false);
 
 const formData = ref({
   login: '',
@@ -59,7 +54,7 @@ function validateForm() {
     isValid = false;
   }
 
-  if (props.isRegistration) {
+  if (isRegistration.value) {
     if (!formData.value.confirmPassword.trim()) {
       errors.value.confirmPassword = 'Повторите пароль';
       isValid = false;
@@ -82,11 +77,13 @@ async function handleSubmit() {
   }
 
   try {
-    if (props.isRegistration) {
+    if (isRegistration.value) {
       await signUp(formData.value);
 
-      // После регистрации -> на страницу входа
-      navigateTo('/signin');
+      isRegistration.value = false;
+      formData.value.login = '';
+      formData.value.password = '';
+      formData.value.confirmPassword = '';
     } else {
       const data = await signIn(formData.value);
       const tokens = await getToken(formData.value);
@@ -100,7 +97,7 @@ async function handleSubmit() {
       }
     }
   } catch (err) {
-    if (props.isRegistration) {
+    if (isRegistration.value) {
       serverError.value = err.message;
     } else {
       serverError.value = 'Неверно введена почта или пароль';
@@ -167,13 +164,14 @@ async function handleSubmit() {
             <a>{{ isRegistration ? "Зарегистрироваться" : "Войти" }}</a>
           </button>
 
-          <NuxtLink
+          <button
             v-if="!isRegistration"
-            to='/signup'
+            type="button"
             class="modal__btn-signup"
+            @click="isRegistration = true"
           >
             Зарегистрироваться
-          </NuxtLink>
+          </button>
         </form>
       </div>
     </div>

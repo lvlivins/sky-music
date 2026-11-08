@@ -36,7 +36,6 @@ export function useAudioPlayer() {
   // Инициализируем плеер в самом начале
   const initPlayer = (element) => {
     if (!element) {
-      console.error("Плеера нет :(");
       return;
     }
     playerStore.setAudioRef(element);
@@ -45,7 +44,6 @@ export function useAudioPlayer() {
   // Воспроизводим трек
   const playTrack = async (track) => {
     if (!playerStore.audioRef) {
-      console.error("Плеер не инициализирован");
       return;
     }
 
@@ -56,7 +54,6 @@ export function useAudioPlayer() {
       await playerStore.audioRef.play();
       playerStore.setPlaying(true);
     } catch (error) {
-      console.error("Ошибка воспроизведения:", error);
       playerStore.setPlaying(false);
     }
   };

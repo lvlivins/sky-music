@@ -2,8 +2,9 @@
 import { useFiltersStore } from '~/stores/filters';
 import { usePlayerStore } from '~/stores/player';
 import { getFavorites, updateToken } from "~/composables/useApi";
+import { formatDuration } from "~/composables/useTracks";
 
-const { loading, error, tracks, formatDuration } = await useTracks("tracks-playlist");
+const { loading, error, tracks } = await useTracks("tracks-playlist");
 const { playTrack, toggleLike } = useAudioPlayer();
 
 const filtersStore = useFiltersStore();

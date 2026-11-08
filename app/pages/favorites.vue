@@ -13,7 +13,7 @@ useHead({
 
 if (!refreshToken.value) {
   await navigateTo({
-    path: "/signin",
+    path: "/sign",
     query: { redirect: "/favorites" },
   });
 }
