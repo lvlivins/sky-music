@@ -1,18 +1,23 @@
 <script setup>
-const activeFilter = ref(null)
-const refreshToken = useCookie("refresh")
+import { userData } from '~/stores/store';
 
-function toggleFilter(filter) {
-  if (activeFilter.value === filter) {
-    activeFilter.value = null
+const userStore = userData();
+const menuOpen = ref(false);
+
+function toggleMenu() {
+  if (menuOpen.value === true) {
+    menuOpen.value = false;
   } else {
-    activeFilter.value = filter
+    menuOpen.value = true;
   }
 }
 </script>
 
 <template>
-  <nav class="main__nav nav">
+  <nav
+    class="main__nav nav"
+    :class="{ open: menuOpen }"
+  >
     <NuxtLink to="/" class="nav__logo logo">
       <div class="logo__image">
         <NuxtImg
@@ -25,12 +30,18 @@ function toggleFilter(filter) {
         />
       </div>
     </NuxtLink>
-    <div class="nav__burger burger" @click="toggleFilter('burger')">
+    <div
+      class="nav__burger burger"
+      @click="toggleMenu"
+    >
       <span class="burger__line"></span>
       <span class="burger__line"></span>
       <span class="burger__line"></span>
     </div>
-    <div class="nav__menu menu" v-show="activeFilter === 'burger'">
+    <div
+      class="nav__menu menu"
+      :class="{ open: menuOpen }"
+    >
       <ul class="menu__list">
         <li class="menu__item">
           <NuxtLink to="/" class="menu__link">Главное</NuxtLink>
@@ -39,7 +50,12 @@ function toggleFilter(filter) {
           <NuxtLink to="/favorites" class="menu__link">Мой плейлист</NuxtLink>
         </li>
         <li class="menu__item">
-          <NuxtLink v-if="refreshToken" to="/sign" class="menu__link">Выйти</NuxtLink>
+          <NuxtLink
+            v-if="userStore.refreshToken"
+            to="/sign"
+            class="menu__link"
+          >Выйти
+          </NuxtLink>
           <NuxtLink v-else to="/sign" class="menu__link">Войти</NuxtLink>
         </li>
       </ul>
@@ -50,8 +66,14 @@ function toggleFilter(filter) {
 <style scoped>
 .main__nav {
   width: 244px;
-  background-color: #181818;
+  background-color: transparent;
   padding: 20px 0 20px 36px;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.main__nav.open {
+  background-color: #1C1C1C;
 }
 
 .nav__logo {
@@ -82,8 +104,16 @@ function toggleFilter(filter) {
 }
 
 .nav__menu {
-  display: block;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+.nav__menu.open {
+  opacity: 1;
   visibility: visible;
+  transform: translateX(0);
 }
 
 .logo__image {

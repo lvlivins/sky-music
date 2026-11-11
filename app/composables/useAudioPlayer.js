@@ -1,34 +1,33 @@
-import { computed, watchEffect } from "vue";
-import { usePlayerStore } from "~/stores/player";
-import { updateToken, addFavorite, removeFavorite } from "~/composables/useApi";
+import { computed, watchEffect } from 'vue';
+import { usePlayerStore } from '~/stores/player';
+import { addFavorite, removeFavorite, updateToken } from '~/composables/useApi';
+import { userData } from "~/stores/store";
 
 export function useAudioPlayer() {
-  // Получаем store, чтобы менять данные в хранилище
   const playerStore = usePlayerStore();
-  const accessToken = useCookie("access");
-  const refreshToken = useCookie("refresh");
+  const userStore = userData();
+
 
   async function toggleLike(track) {
-    if (!refreshToken.value) {
+    if (!userStore.refreshToken) {
       return;
     }
 
     try {
-      const tokens = await updateToken(refreshToken.value);
-      accessToken.value = tokens.access;
+      const tokens = await updateToken(userStore.refreshToken);
+      userStore.accessToken = tokens.access;
 
       if (playerStore.likedIds.includes(track._id)) {
-        await removeFavorite(track._id, accessToken.value);
+        await removeFavorite(track._id, userStore.accessToken);
         playerStore.likedIds = playerStore.likedIds.filter(function (id) {
           return id !== track._id;
         });
       } else {
-        await addFavorite(track._id, accessToken.value);
+        await addFavorite(track._id, userStore.accessToken);
         playerStore.likedIds.push(track._id);
       }
     } catch (error) {
-      accessToken.value = null;
-      refreshToken.value = null;
+      userStore.clearUserData();
       playerStore.likedIds = [];
     }
   }

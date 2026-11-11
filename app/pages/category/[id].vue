@@ -31,9 +31,9 @@ watch(
 // Загрузка данных при изменении ID категории
 watch(
   () => route.params.id,
-  async (newId) => {
+   (newId) => {
     if (newId) {
-      await fetchCategoryData(newId);
+      fetchCategoryData(newId);
     }
   }
 );

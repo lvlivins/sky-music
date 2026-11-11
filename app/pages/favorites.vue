@@ -1,5 +1,7 @@
 <script setup>
-const refreshToken = useCookie("refresh");
+import { userData } from '~/stores/store';
+
+const userStore = userData();
 
 useHead({
   title: "Мои треки | Skypro.Music",
@@ -11,12 +13,17 @@ useHead({
   ],
 });
 
-if (!refreshToken.value) {
-  await navigateTo({
+onMounted(function() {
+  userStore.getUserData();
+
+  if (!userStore.refreshToken) {
+    navigateTo({
     path: "/sign",
     query: { redirect: "/favorites" },
   });
 }
+});
+
 </script>
 
 <template>

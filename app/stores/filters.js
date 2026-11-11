@@ -6,6 +6,7 @@ export const useFiltersStore = defineStore("filters", {
     selectedAuthors: [],
     selectedGenres: [],
     selectedYear: null, // По умолчанию
+    textSearch: "",
   }),
 
   actions: {

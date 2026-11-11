@@ -1,31 +1,32 @@
 <script setup>
 import { useFiltersStore } from '~/stores/filters';
 import { usePlayerStore } from '~/stores/player';
-import { getFavorites, updateToken } from "~/composables/useApi";
-import { formatDuration } from "~/composables/useTracks";
+import { getFavorites, updateToken } from '~/composables/useApi';
+import { formatDuration } from '~/composables/useTracks';
+import { userData } from '~/stores/store';
 
 const { loading, error, tracks } = await useTracks("tracks-playlist");
 const { playTrack, toggleLike } = useAudioPlayer();
-
+const userStore = userData();
 const filtersStore = useFiltersStore();
 const playerStore = usePlayerStore();
-const accessToken = useCookie("access");
-const refreshToken = useCookie("refresh");
 const likedIds = toRef(playerStore, "likedIds");
 
 const props = defineProps({
   trackIds: { type: Array, default: null },
-  withFilters: { type: Boolean, default: false },// клик фильтруем !!
+  withFilters: { type: Boolean, default: false },// клик фильтр
   onlyLiked: { type: Boolean, default: false },
 });
 
-onMounted(async function () {
-  if (refreshToken.value) {
-    try {
-      const tokens = await updateToken(refreshToken.value);
-      accessToken.value = tokens.access;
+ onMounted(async function () {
+  userStore.getUserData();
 
-      const response = await getFavorites(accessToken.value);
+  if (userStore.refreshToken) {
+    try {
+      const tokens = await updateToken(userStore.refreshToken);
+      userStore.accessToken = tokens.access;
+
+      const response = await getFavorites(userStore.accessToken);
       likedIds.value = response.data.map(
         function (track) {
         return track._id;
@@ -41,6 +42,15 @@ const shownTracks = computed(() => {
 
   if (props.trackIds) {
     list = list.filter((track) => props.trackIds.includes(track._id));
+  }
+
+  if (filtersStore.textSearch) {
+    const wordSearch = filtersStore.textSearch.toLowerCase();
+
+    list = list.filter(function (track) {
+      const trackName = track.name.toLowerCase();
+      return trackName.includes(wordSearch);
+    });
   }
 
   if (props.onlyLiked) {
@@ -107,7 +117,7 @@ const selectTrack = (track) => {
       <div class="playlist__item" v-for="track in shownTracks" :key="track._id">
         <div class="playlist__track track">
           <div class="track__title">
-            <div class="track__title-image">
+            <div class="track__title-image" @click="selectTrack(track)">
               <span
                 v-if="playerStore.currentTrack?._id === track._id"
                 class="playing-dot"
@@ -179,7 +189,6 @@ const selectTrack = (track) => {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow-y: auto;
 }
 
 .playlist-title__col {
@@ -253,6 +262,7 @@ const selectTrack = (track) => {
 }
 
 .track__title-image {
+  cursor: pointer;
   width: 51px;
   height: 51px;
   padding: 16px;

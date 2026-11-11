@@ -1,8 +1,26 @@
 <script setup>
 // меню слева, сайдбар справа, плеер внизу
+import { userData } from "~/stores/store";
+import { useFiltersStore } from "~/stores/filters";
+
 const route = useRoute();
 const origin = useRequestURL().origin;
-const user = useCookie("user"); // функция Nuxt из коробки
+const userStore = userData();
+const filtersStore = useFiltersStore();
+
+onMounted(
+  function() {
+    userStore.getUserData();
+  });
+
+const authPage = computed(
+  function() {
+    if (route.path === '/sign') {
+      return true;
+    } else {
+      return false;
+    }
+  });
 
 useHead(() => ({
   title: "Skypro.Music",
@@ -20,7 +38,13 @@ useHead(() => ({
 </script>
 
 <template>
-  <div class="wrapper">
+  <slot
+    v-if="authPage"
+  />
+  <div
+    v-else
+    class="wrapper"
+  >
     <div class="container">
       <main class="main">
         <Navbar />
@@ -34,6 +58,7 @@ useHead(() => ({
               type="search"
               placeholder="Поиск"
               name="search"
+              v-model="filtersStore.textSearch"
             />
           </div>
           <slot></slot>
@@ -41,7 +66,7 @@ useHead(() => ({
 
         <div class="main__sidebar sidebar">
           <div class="sidebar__personal">
-            <p class="sidebar__personal-name">{{ user?.username }}</p>
+            <p class="sidebar__personal-name">{{ userStore.username }}</p>
             <NuxtLink to="/sign">
               <div class="sidebar__icon">
                 <svg>
@@ -125,11 +150,12 @@ useHead(() => ({
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
   justify-content: space-between;
+  height: 100vh;
 }
 
 .main__centerblock {
@@ -137,7 +163,12 @@ useHead(() => ({
   -webkit-box-flex: 3;
   -ms-flex-positive: 3;
   flex-grow: 3;
-  padding: 20px 40px 20px 111px;
+  padding: 20px 40px 98px 111px;
+  overflow-y: auto;
+}
+
+.main__centerblock::-webkit-scrollbar {
+  display: none;
 }
 
 .main__sidebar {

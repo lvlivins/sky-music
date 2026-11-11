@@ -1,14 +1,14 @@
 <script setup>
 import { getToken, signIn, signUp } from '~/composables/useApi';
+import { userData } from '~/stores/store';
 
-const user = useCookie('user'); //
 const route = useRoute();
-const accessToken = useCookie('access');
-const refreshToken = useCookie('refresh');
+const userStore = userData();
 
-user.value = null;
-accessToken.value = null;
-refreshToken.value = null;
+onMounted(
+  function() {
+    userStore.clearUserData();
+  });
 
 const isRegistration = ref(false);
 
@@ -87,9 +87,7 @@ async function handleSubmit() {
     } else {
       const data = await signIn(formData.value);
       const tokens = await getToken(formData.value);
-      user.value = data; //
-      accessToken.value = tokens.access;
-      refreshToken.value = tokens.refresh;
+      userStore.saveUserData(data, tokens); // store.js
       if (route.query.redirect) {
         navigateTo(route.query.redirect);
       } else {
@@ -112,6 +110,7 @@ async function handleSubmit() {
       <div class="modal__block">
         <form class="modal__form-login" @submit.prevent="handleSubmit">
             <div class="modal__logo">
+              <NuxtLink to="/">
               <NuxtImg
                 src="/img/logo_modal.png"
                 alt="логотип Skypro Music"
@@ -121,7 +120,8 @@ async function handleSubmit() {
                 format="webp"
                 preload
               />
-          </div>
+              </NuxtLink>
+            </div>
 
           <input
             v-model="formData.login"
